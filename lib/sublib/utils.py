@@ -21,6 +21,17 @@
 import xbmcvfs
 import xbmcgui
 import re
+import urllib
+import urllib2
+import cookielib.CookieJar
+import unicodedata
+import HTMLParser
+
+_cj = cookielib.CookieJar()
+_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(_cj))
+_hparser = HTMLParser.HTMLParser()
+
+_ua = "KODI / XBMC Sublib Library"
 
 epiregs = [
             r"s([0-9]*)xe([0-9]*)",
@@ -34,6 +45,43 @@ epiregs = [
             r"-([0-9]*)",
             r"_([0-9]*)",
             ]
+
+
+def normstr(s):
+    s = unicodedata.normalize('NFKD', unicode(unicode(str, 'utf-8')))
+    return s.encode('ascii', 'ignore')
+
+
+def dformat(d, m):
+    r = {}
+    for k, v in d.iteritems():
+        try:
+            r[k] = m(v)
+        except:
+            r[k] = v
+    return r
+
+
+def download(u, query=None, data=None, referer=None, binary=False, ua=None,
+             encoding="utf-8"):
+    if not ua:
+        ua = _ua
+    if query:
+        q = urllib.urlencode(query)
+        u += "?" + q
+    if data:
+        data = urllib.urlencode(data)
+    header = {"User-Agent": ua}
+    if referer:
+        header["Referer"] = referer
+    print u
+    req = urllib2.Request(u, data, header)
+    res = _opener.open(req)
+    if not binary:
+        res = res.read()
+        res = res.decode(encoding)
+        res = _hparser.unescape(res)
+    return res
 
 
 def checkarchive(fname):
