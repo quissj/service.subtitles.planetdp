@@ -23,7 +23,7 @@ import xbmcgui
 import re
 import urllib
 import urllib2
-import cookielib.CookieJar
+import cookielib
 import unicodedata
 import HTMLParser
 
@@ -48,7 +48,7 @@ epiregs = [
 
 
 def normstr(s):
-    s = unicodedata.normalize('NFKD', unicode(unicode(str, 'utf-8')))
+    s = unicodedata.normalize('NFKD', unicode(unicode(s, 'utf-8')))
     return s.encode('ascii', 'ignore')
 
 

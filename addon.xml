@@ -6,7 +6,6 @@
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
   </requires>
-  <extension point="xbmc.python.module" library="lib" />
   <extension point="xbmc.subtitle.module" library="addon.py" />
   <extension point="xbmc.addon.metadata">
     <summary lang="en">Demo Subtitle Service</summary>
