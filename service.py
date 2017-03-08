@@ -56,7 +56,7 @@ class planetdp(sublib.service):
             self.searchpredict()
 
     def download(self, link):
-        page = self.query(link)
+        page = self.request(link)
         token = re.search('<input type="hidden" name="_token" value="(.*?)">', page)
         subid = re.search('rel\-id="(.*?)"', page)
         uniqk = re.search('rel\-tag="(.*?)"', page)
@@ -67,7 +67,7 @@ class planetdp(sublib.service):
                     "subtitle_id": subid.group(1),
                     "uniquekey": uniqk.group(1)
                     }
-            remfile = self.query(domain + "/subtitle/download", None, data, link, True)
+            remfile = self.request(domain + "/subtitle/download", None, data, link, True)
             fname = remfile.info().getheader("Content-Disposition")
             fname = re.search('filename="(.*?)"', fname)
             fname = fname.group(1)
@@ -167,6 +167,8 @@ class planetdp(sublib.service):
     def searchimdb(self):
         if self.item.season < 0:
             season = ""
+        else:
+            season = self.item.season
         query = {
                  "title": self.item.imdb,
                  "translator": "",
@@ -198,6 +200,8 @@ class planetdp(sublib.service):
     def searchpredict(self):
         if self.item.season < 0:
             season = ""
+        else:
+            season = self.item.season
         query = {
                  "title": self.item.title,
                  "translator": "",
