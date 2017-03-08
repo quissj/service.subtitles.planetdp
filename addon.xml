@@ -1,14 +1,21 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="service.subtitles.demo"
-       name="Demo Subtitle Service"
+<?xml version="0.0.1" encoding="UTF-8" standalone="yes"?>
+<addon id="service.subtitles.planetdp"
+       name="planetdp.org"
        version="0.0.1"
-       provider-name="amet">
+       provider-name="hbiyik">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.module.sublib" version="0.0.1"/>
   </requires>
   <extension point="xbmc.subtitle.module" library="addon.py" />
   <extension point="xbmc.addon.metadata">
-    <summary lang="en">Demo Subtitle Service</summary>
-    <description lang="en">Demo Subtitle Service to show how we need to interact with XBMC</description>
+  	<platform>all</platform>
+    <summary lang="en">planetdp.org</summary>
+    <description lang="en">Turkish / English Subtitle Service from planetdp.org</description>
+    <description lang="tr">planetdp.org ile Türkçe / İngilizce altyazı servisi</description>
+    <license>GNU General Public License, v2</license>
+	<forum>https://github.com/hbiyik/script.service.planetdp/issues</forum>
+	<website>https://github.com/hbiyik/script.service.planetdp</website>
+    <email>huseyinbiyik@hotmail.com</email>
   </extension>
 </addon>
