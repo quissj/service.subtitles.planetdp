@@ -76,17 +76,78 @@ class planetdp(sublib.service):
                 f.write(remfile.read())
             self.addfile(fname)
 
+    def checkpriority(self, txt):
+        # this is a very complicated and fuzzy string work
+        if self.item.episode < 0 or not self.item.show:
+            return False, 0, 0
+        ispack = 0
+        packmatch = 0
+        epmatch = 0
+        skip = False
+        sb = re.search("S\:(.+?)[-|,]B\:(.+)", txt)
+        if sb:
+            e = sb.group(2).strip().replace(" ", "").lower()
+            s = sb.group(1).strip().replace(" ", "").lower()
+            # verify season match first
+            if s.isdigit() and self.item.season > 0 and \
+                not self.item.season == int(s):
+                return True, 0, 0
+            ismultiple = False
+            # B: 1,2,3,4 ...
+            for m in e.split(","):
+                if m.strip().isdigit():
+                    ismultiple = True
+                else:
+                    ismultiple = False
+                    break
+            if ismultiple:
+                # check if in range
+                multiples = [int(x) for x in e.split(",")]
+                if self.item.episode in multiples:
+                    packmatch = 2
+                else:
+                    skip = True
+            # B: 1~4
+            if "~" in e:
+                startend = e.split("~")
+                # check if in range
+                if len(startend) == 2 and \
+                    startend[0].strip().isdigit() and \
+                    startend[1].strip().isdigit():
+                    if int(startend[0]) < self.item.episode and \
+                        int(startend[1]) > self.item.episode:
+                        packmatch = 2
+                    else:
+                        skip = True
+                else:
+                    ispack = 1
+            # B: Paket meaning a package
+            if "paket" in e:
+                ispack = 1
+            # B:1 or B:01
+            if e.isdigit():
+                if int(e) == self.item.episode:
+                    epmatch = 3
+                else:
+                    skip = True
+        return skip, ispack, epmatch + packmatch
+
     def scrapesubs(self, page):
         for row in re.findall("<tr(.*?)</tr>", page, re.DOTALL):
             index = 0
             link = None
             name = None
             iso = None
+            ispack = 0
+            epmatch = 0
             for column in re.findall("<td(.*?)</td>", row, re.DOTALL):
                 index += 1
                 if index == 1:
                     res = re.search('href="(.*?)".*?title="(.*?)">(.*?)<', column)
                     link = domain + res.group(1)
+                    skip, ispack, epmatch = self.checkpriority(res.group(3))
+                    if skip:
+                        break
                     name = "%s: %s" % (res.group(3), res.group(2))
                 if index == 2:
                     res = re.search("<img src='(.*?)'", column)
@@ -101,6 +162,7 @@ class planetdp(sublib.service):
             if link and iso and name:
                 sub = self.sub(name, iso)
                 sub.download(link)
+                sub.priority = ispack + epmatch
                 self.addsub(sub)
 
     def scrapemovie(self, page):
@@ -110,7 +172,10 @@ class planetdp(sublib.service):
             name = None
             iso = None
             trans = None
+            ispack = 0
+            epmatch = 0
             for column in re.findall("<td(.*?)</td>", row, re.DOTALL):
+                skip = None
                 index += 1
                 if index == 1:
                     res = re.search('href="(.*?)".*?title="(.*?)"', column)
@@ -127,6 +192,15 @@ class planetdp(sublib.service):
                     res = re.search("<a.*?>(.*?)</a", column)
                     if res:
                         trans = res.group(1)
+                if index == 9:
+                    release = re.search("<span>(.*?)</span>", column)
+                    if release:
+                        release = re.sub("<.*?>", "", release.group(1))
+                        skip, ispack, epmatch = self.checkpriority(release)
+                        name += " %s" % release
+                    if skip:
+                        name = None
+                        break
                 if index == 12:
                     version = re.search(' / Notlar</b>(.*?)</span>', column)
                     if version:
@@ -136,6 +210,7 @@ class planetdp(sublib.service):
                     name += " ~ %s" % trans
                 sub = self.sub(name, iso)
                 sub.download(link)
+                self.priority = ispack + epmatch
                 self.addsub(sub)
 
     def scraperesult(self, page):
