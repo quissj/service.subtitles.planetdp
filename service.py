@@ -90,7 +90,7 @@ class planetdp(sublib.service):
             s = sb.group(1).strip().replace(" ", "").lower()
             # verify season match first
             if s.isdigit() and self.item.season > 0 and \
-                not self.item.season == int(s):
+                    not self.item.season == int(s):
                 return True, 0, 0
             ismultiple = False
             # B: 1,2,3,4 ...
@@ -113,9 +113,9 @@ class planetdp(sublib.service):
                 # check if in range
                 if len(startend) == 2 and \
                     startend[0].strip().isdigit() and \
-                    startend[1].strip().isdigit():
+                        startend[1].strip().isdigit():
                     if int(startend[0]) < self.item.episode and \
-                        int(startend[1]) > self.item.episode:
+                            int(startend[1]) > self.item.episode:
                         packmatch = 2
                     else:
                         skip = True
@@ -130,7 +130,7 @@ class planetdp(sublib.service):
                     epmatch = 3
                 else:
                     skip = True
-        return skip, ispack, epmatch + packmatch
+        return skip, ispack + epmatch + packmatch
 
     def scrapesubs(self, page):
         for row in re.findall("<tr(.*?)</tr>", page, re.DOTALL):
@@ -138,14 +138,13 @@ class planetdp(sublib.service):
             link = None
             name = None
             iso = None
-            ispack = 0
-            epmatch = 0
+            priority = 0
             for column in re.findall("<td(.*?)</td>", row, re.DOTALL):
                 index += 1
                 if index == 1:
                     res = re.search('href="(.*?)".*?title="(.*?)">(.*?)<', column)
                     link = domain + res.group(1)
-                    skip, ispack, epmatch = self.checkpriority(res.group(3))
+                    skip, priority = self.checkpriority(res.group(3))
                     if skip:
                         break
                     name = "%s: %s" % (res.group(3), res.group(2))
@@ -162,7 +161,7 @@ class planetdp(sublib.service):
             if link and iso and name:
                 sub = self.sub(name, iso)
                 sub.download(link)
-                sub.priority = ispack + epmatch
+                sub.priority = priority
                 self.addsub(sub)
 
     def scrapemovie(self, page):
@@ -172,8 +171,7 @@ class planetdp(sublib.service):
             name = None
             iso = None
             trans = None
-            ispack = 0
-            epmatch = 0
+            priority = 0
             for column in re.findall("<td(.*?)</td>", row, re.DOTALL):
                 skip = None
                 index += 1
@@ -196,7 +194,7 @@ class planetdp(sublib.service):
                     release = re.search("<span>(.*?)</span>", column)
                     if release:
                         release = re.sub("<.*?>", "", release.group(1))
-                        skip, ispack, epmatch = self.checkpriority(release)
+                        skip, priority = self.checkpriority(release)
                         name += " %s" % release
                     if skip:
                         name = None
@@ -210,11 +208,11 @@ class planetdp(sublib.service):
                     name += " ~ %s" % trans
                 sub = self.sub(name, iso)
                 sub.download(link)
-                self.priority = ispack + epmatch
+                self.priority = priority
                 self.addsub(sub)
 
     def scraperesult(self, page):
-        #if we are here we must have a year
+        # if we are here we must have a year
         divs = re.findall('<div class="col-sm-7(.*?)</div>', page, re.DOTALL)
         nname = norm(self.item.title)
         for div in divs:
@@ -234,7 +232,7 @@ class planetdp(sublib.service):
                 name = submatch.group(1)
                 year = int(submatch.group(2))
                 if year == self.item.year and \
-                    (nname == norm(name) or nname in akas):
+                        (nname == norm(name) or nname in akas):
                     page = self.request(domain + link)
                     self.scrapemovie(page)
                     break
@@ -259,7 +257,7 @@ class planetdp(sublib.service):
         return self.scrapesubs(page)
 
     def searchnameyear(self):
-        #if we are here we must have a year
+        # if we are here we must have a year
         query = {
                  "title": self.item.title,
                  "year_date": self.item.year,
