@@ -79,7 +79,7 @@ class planetdp(sublib.service):
     def checkpriority(self, txt):
         # this is a very complicated and fuzzy string work
         if self.item.episode < 0 or not self.item.show:
-            return False, 0, 0
+            return False, 0
         ispack = 0
         packmatch = 0
         epmatch = 0
@@ -91,7 +91,7 @@ class planetdp(sublib.service):
             # verify season match first
             if s.isdigit() and self.item.season > 0 and \
                     not self.item.season == int(s):
-                return True, 0, 0
+                return True, 0
             ismultiple = False
             # B: 1,2,3,4 ...
             for m in e.split(","):
