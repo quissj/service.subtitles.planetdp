@@ -165,7 +165,8 @@ class planetdp(sublib.service):
                 self.addsub(sub)
 
     def scrapemovie(self, page):
-        for row in re.findall('<tr.*?class="rowinfo(.*?<tr.*?class="alt_div.*?<tr.*?class="alt_div.*?)</tr>', page, re.DOTALL):
+        regstr = '<tr.*?class="rowinfo(.*?<tr.*?class="alt_div.*?<tr.*?class="alt_div.*?)</tr>'
+        for row in re.findall(regstr, page, re.DOTALL):
             index = 0
             link = None
             name = None
