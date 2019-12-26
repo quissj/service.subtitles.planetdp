@@ -44,6 +44,8 @@ quals = {
          "sub_checked": 5,  # Onaylandı
          "sub_checked_orange": 3,  # Teknik Yapı Hataları, Hafif İmla Hataları, Ekstrem Durum
          "sub_checked_red": 1,  # Teknik Yapı Hataları, Ağır İmla Hataları, Çeviri Zayıf Düzeyde
+         "sub_checked_blue": 0, # Bu çeviri kaynak altyazı bulunamadığı için değerlendirilememiştir
+         "sub_no_check": 0, #
         }
 
 def norm(txt):
